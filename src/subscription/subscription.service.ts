@@ -45,12 +45,26 @@ export class SubscriptionService {
 
       const exchangeMap: IExchangeRate =
         SubscriptionMapper.toSendEmailsDto(exchangeRate);
+      const allPromises = [];
 
-      emails.map(async (email: string) => {
-        await this.mailService.sendExchangeRateEmail(email, exchangeMap);
+      emails.forEach((email) => {
+        const promise = new Promise((res, rej) => {
+          this.mailService
+            .sendExchangeRateEmail(email as string, exchangeMap)
+            .then(() => {
+              res(email);
+            })
+            .catch(() => {
+              rej(email);
+            });
+        });
+
+        allPromises.push(promise);
       });
 
-      return { emails, exchangeMap };
+      const result = await Promise.allSettled(allPromises);
+
+      return result;
     } catch (error) {
       this.logger.error(
         `Error occurred while sending emails: ${error.message}`,
