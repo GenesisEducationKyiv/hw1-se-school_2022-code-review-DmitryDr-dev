@@ -45,23 +45,19 @@ export class SubscriptionService {
 
       const exchangeMap: IExchangeRate =
         SubscriptionMapper.toSendEmailsDto(exchangeRate);
-      const allPromises = [];
-
-      emails.forEach((email) => {
-        const promise = new Promise((res, rej) => {
-          this.mailService
-            .sendExchangeRateEmail(email as string, exchangeMap)
-            .then(() => {
-              res(email);
-            })
-            .catch(() => {
-              rej(email);
-            });
-        });
-
-        allPromises.push(promise);
-      });
-
+      const allPromises = emails.map(
+        (email) =>
+          new Promise((res, rej) => {
+            this.mailService
+              .sendExchangeRateEmail(email as string, exchangeMap)
+              .then(() => {
+                res(email);
+              })
+              .catch(() => {
+                rej(email);
+              });
+          }),
+      );
       const result = await Promise.allSettled(allPromises);
 
       return result;
