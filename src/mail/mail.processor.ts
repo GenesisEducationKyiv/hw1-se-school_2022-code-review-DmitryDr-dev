@@ -28,7 +28,7 @@ export class MailProcessor {
 
     this.logger.log(`Sending exchange rate email to ${email}`);
     try {
-      return await this.mailerService.sendMail({
+      const result = await this.mailerService.sendMail({
         to: email,
         subject: 'Exchange Rate',
         template: path.join('./exchange-rate'),
@@ -39,6 +39,8 @@ export class MailProcessor {
           targetCurrency,
         },
       });
+
+      return result;
     } catch (error) {
       this.logger.error(`Error occurred while sending email: ${error.message}`);
 

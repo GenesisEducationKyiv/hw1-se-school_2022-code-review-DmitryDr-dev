@@ -14,10 +14,12 @@ export class MailService {
     exchangeRateData: IExchangeRate,
   ) {
     try {
-      return await this.mailQueue.add('sendExchangeRateEmail', {
+      const result = await this.mailQueue.add('sendExchangeRateEmail', {
         email,
         exchangeRateData,
       });
+
+      return result;
     } catch (error) {
       this.logger.error(
         `Error occurred while sending email to ${email} because of ${error.message}`,

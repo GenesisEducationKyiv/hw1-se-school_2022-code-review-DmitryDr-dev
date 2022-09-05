@@ -18,7 +18,9 @@ export class SubscriptionService {
 
   public async addNewEmail(email: string) {
     try {
-      return await this.localDbService.addOne(LocalDbName.Email, email);
+      const result = await this.localDbService.addOne(LocalDbName.Email, email);
+
+      return result;
     } catch (error) {
       this.logger.error(
         `Error occurred while creating new contact': ${error.message}`,
@@ -56,7 +58,9 @@ export class SubscriptionService {
               });
           }),
       );
-      return await Promise.allSettled(allPromises);
+      const result = await Promise.allSettled(allPromises);
+
+      return result;
     } catch (error) {
       this.logger.error(
         `Error occurred while sending emails: ${error.message}`,
