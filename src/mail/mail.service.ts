@@ -1,7 +1,7 @@
 import { InjectQueue } from '@nestjs/bull';
 import { Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bull';
-import { IExchangeRate } from 'src/subscription/interfaces';
+import { IExchangeRate } from '../subscription/interfaces';
 
 @Injectable()
 export class MailService {

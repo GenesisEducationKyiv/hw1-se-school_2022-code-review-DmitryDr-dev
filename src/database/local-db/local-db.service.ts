@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
-import { LocalDbName } from 'src/common/constants';
+import { LocalDbName } from '../../common/constants';
 import { DbBinaryTreeService } from '../db-binary-tree/db-binary-tree.service';
 import { DbStorageService } from '../db-storage/db-storage.service';
 

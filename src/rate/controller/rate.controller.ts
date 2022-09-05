@@ -4,8 +4,8 @@ import {
   Get,
   UseFilters,
 } from '@nestjs/common';
-import { HttpExceptionFilter } from 'src/common/filters';
-import { RateService } from './rate.service';
+import { HttpExceptionFilter } from '../../common/filters';
+import { RateService } from '../service';
 
 @Controller()
 export class RateController {

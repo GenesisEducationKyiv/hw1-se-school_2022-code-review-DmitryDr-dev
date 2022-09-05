@@ -1,5 +1,5 @@
-import { IExchangeRateApiResponse } from 'src/exchange-api/interfaces';
-import { IExchangeRate } from '../interfaces/exchange-rate.interface';
+import { IExchangeRateApiResponse } from '../../exchange-api/interfaces';
+import { IExchangeRate } from '../interfaces';
 
 export class SubscriptionMapper {
   public static toSendEmailsDto(

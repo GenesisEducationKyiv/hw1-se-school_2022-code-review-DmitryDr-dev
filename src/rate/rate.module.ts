@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { ExchangeApiModule } from 'src/exchange-api/exchange-api.module';
-import { RateController } from './rate.controller';
-import { RateService } from './rate.service';
+import { ExchangeApiModule } from '../exchange-api/exchange-api.module';
+import { RateController } from './controller';
+import { RateService } from './service';
 
 @Module({
   imports: [ExchangeApiModule],
