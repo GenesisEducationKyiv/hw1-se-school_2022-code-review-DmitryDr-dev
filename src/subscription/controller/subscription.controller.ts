@@ -8,9 +8,9 @@ import {
   UseFilters,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { HttpExceptionFilter } from '../common/filters';
-import { SubscribeEmailDto } from './dto';
-import { SubscriptionService } from './subscription.service';
+import { HttpExceptionFilter } from '../../common/filters';
+import { SubscribeEmailDto } from '../dto';
+import { SubscriptionService } from '../service';
 
 @Controller()
 export class SubscriptionController {

@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { LocalDbName } from '../common/constants';
-import { LocalDbService } from '../database/local-db/local-db.service';
-import { ExchangeApiService } from '../exchange-api/exchange-api.service';
-import { MailService } from '../mail/mail.service';
-import { IExchangeRate } from './interfaces';
-import { SubscriptionMapper } from './map';
+import { LocalDbName } from '../../common/constants';
+import { LocalDbService } from '../../database/local-db/local-db.service';
+import { ExchangeApiService } from '../../exchange-api/exchange-api.service';
+import { MailService } from '../../mail/mail.service';
+import { IExchangeRate } from '../interfaces';
+import { SubscriptionMapper } from '../map';
 
 @Injectable()
 export class SubscriptionService {
