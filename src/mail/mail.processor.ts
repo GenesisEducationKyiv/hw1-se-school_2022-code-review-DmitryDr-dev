@@ -3,7 +3,7 @@ import { Process, Processor } from '@nestjs/bull';
 import { Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bull';
 import * as path from 'path';
-import { IExchangeRate } from 'src/subscription/interfaces';
+import { IExchangeRate } from '../subscription/interfaces';
 
 @Injectable()
 @Processor('mailQueue')
@@ -28,7 +28,7 @@ export class MailProcessor {
 
     this.logger.log(`Sending exchange rate email to ${email}`);
     try {
-      const result = await this.mailerService.sendMail({
+      return await this.mailerService.sendMail({
         to: email,
         subject: 'Exchange Rate',
         template: path.join('./exchange-rate'),
@@ -39,8 +39,6 @@ export class MailProcessor {
           targetCurrency,
         },
       });
-
-      return result;
     } catch (error) {
       this.logger.error(`Error occurred while sending email: ${error.message}`);
 

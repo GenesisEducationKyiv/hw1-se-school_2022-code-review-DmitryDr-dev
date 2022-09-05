@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { LocalDbName } from 'src/common/constants';
-import { LocalDbService } from 'src/database/local-db/local-db.service';
-import { ExchangeApiService } from 'src/exchange-api/exchange-api.service';
-import { MailService } from 'src/mail/mail.service';
+import { LocalDbName } from '../common/constants';
+import { LocalDbService } from '../database/local-db/local-db.service';
+import { ExchangeApiService } from '../exchange-api/exchange-api.service';
+import { MailService } from '../mail/mail.service';
 import { IExchangeRate } from './interfaces';
 import { SubscriptionMapper } from './map';
 
@@ -18,9 +18,7 @@ export class SubscriptionService {
 
   public async addNewEmail(email: string) {
     try {
-      const result = await this.localDbService.addOne(LocalDbName.Email, email);
-
-      return result;
+      return await this.localDbService.addOne(LocalDbName.Email, email);
     } catch (error) {
       this.logger.error(
         `Error occurred while creating new contact': ${error.message}`,
@@ -58,9 +56,7 @@ export class SubscriptionService {
               });
           }),
       );
-      const result = await Promise.allSettled(allPromises);
-
-      return result;
+      return await Promise.allSettled(allPromises);
     } catch (error) {
       this.logger.error(
         `Error occurred while sending emails: ${error.message}`,
