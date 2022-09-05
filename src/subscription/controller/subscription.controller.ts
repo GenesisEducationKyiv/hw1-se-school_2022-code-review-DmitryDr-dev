@@ -2,12 +2,10 @@ import {
   BadRequestException,
   Body,
   Controller,
-  HttpStatus,
+  HttpCode,
   Post,
-  Res,
   UseFilters,
 } from '@nestjs/common';
-import { Response } from 'express';
 import { HttpExceptionFilter } from '../../common/filters';
 import { SubscribeEmailDto } from '../dto';
 import { SubscriptionService } from '../service';
@@ -17,23 +15,22 @@ export class SubscriptionController {
   constructor(private subscriptionService: SubscriptionService) {}
 
   @Post('subscribe')
+  @HttpCode(200)
   @UseFilters(new HttpExceptionFilter())
-  public async subscribeEmail(
-    @Body() body: SubscribeEmailDto,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  public async subscribeEmail(@Body() body: SubscribeEmailDto) {
     const result = await this.subscriptionService.addNewEmail(body.email);
 
     if (!result) throw new BadRequestException();
 
-    res.status(HttpStatus.OK);
+    return result;
   }
 
   @Post('sendEmails')
+  @HttpCode(200)
   @UseFilters(new HttpExceptionFilter())
-  async sendEmails(@Res({ passthrough: true }) res: Response) {
-    await this.subscriptionService.sendEmails();
+  async sendEmails() {
+    const result = await this.subscriptionService.sendEmails();
 
-    res.status(HttpStatus.OK);
+    return result;
   }
 }
