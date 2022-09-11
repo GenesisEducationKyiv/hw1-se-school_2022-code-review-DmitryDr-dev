@@ -1,4 +1,4 @@
-export interface IExchangeRateApiResponse {
+export interface IExchangeRatesResponse {
   date: string;
   historical: string;
   info: {
