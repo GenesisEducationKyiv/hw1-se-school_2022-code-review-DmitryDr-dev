@@ -1,13 +1,12 @@
 import { InjectQueue } from '@nestjs/bull';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Queue } from 'bull';
 import * as path from 'path';
+import { IDbStorageService } from './db-storage.service.interface';
 
 @Injectable()
-export class DbStorageService {
-  private readonly logger = new Logger(DbStorageService.name);
-
-  private localDbFolder: string;
+export class DbStorageService implements IDbStorageService {
+  private readonly localDbFolder: string;
 
   constructor(
     @InjectQueue('fsOperationsQueue') private readonly fsOperationsQueue: Queue,
@@ -15,7 +14,7 @@ export class DbStorageService {
     this.localDbFolder = path.join(__dirname, '../../db');
   }
 
-  async doesDbFileExist(fileName: string) {
+  public async doesDbFileExist(fileName: string): Promise<boolean> {
     const localDbFile = path.join(`${this.localDbFolder}/${fileName}.db.json`);
 
     try {
@@ -24,15 +23,13 @@ export class DbStorageService {
       });
       const result = await job.finished();
 
-      return result !== null;
+      return !!result;
     } catch (error) {
-      this.logger.error('Error occurred while reading file:', error.message);
-
-      return false;
+      throw new Error(`Error occurred while reading file: ${error.message}`);
     }
   }
 
-  async writeDbFile(fileName: string, content = {}) {
+  public async writeDbFile<T>(fileName: string, content: T): Promise<T> {
     const localDbFile = path.join(`${this.localDbFolder}/${fileName}.db.json`);
 
     try {
@@ -41,29 +38,25 @@ export class DbStorageService {
         filePath: localDbFile,
         content,
       });
-      const result = await job.finished();
+      const result: T = await job.finished();
 
-      return result !== null ? content : null;
+      return result;
     } catch (error) {
-      this.logger.error('Error occurred while updating file:', error.message);
-
-      return null;
+      throw new Error(`Error occurred while updating file: ${error.message}`);
     }
   }
 
-  async readFile(fileName: string) {
+  public async readFile<T>(fileName: string): Promise<T> {
     const localDbFile = path.join(`${this.localDbFolder}/${fileName}.db.json`);
     try {
       const job = await this.fsOperationsQueue.add('fsOperationsQueue/read', {
         filePath: localDbFile,
       });
-      const result = await job.finished();
+      const result: T = await job.finished();
 
-      return result !== null ? result : null;
+      return result;
     } catch (error) {
-      this.logger.error('Error occurred while reading file:', error.message);
-
-      return null;
+      throw new Error(`Error occurred while reading file: ${error.message}`);
     }
   }
 }

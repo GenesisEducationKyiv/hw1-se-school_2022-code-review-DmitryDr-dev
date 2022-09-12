@@ -1,19 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { LocalDbName } from '../../../common/constants';
-import { LocalDbModule } from '../../../database/local-db/local-db.module';
-import { LocalDbService } from '../../../database/local-db/local-db.service';
-import { ExchangeApiModule } from '../../../exchange-api/exchange-api.module';
-import { ExchangeApiService } from '../../../exchange-api/exchange-api.service';
-import { MailModule } from '../../../mail/mail.module';
-import { MailService } from '../../../mail/mail.service';
 import {
+  ILocalDbServiceToken,
+  LocalDbModule,
+} from '../../../database/local-db/local-db.module';
+import {
+  ExchangeApiModule,
+  IExchangeApiServiceToken,
+} from '../../../exchange-api/exchange-api.module';
+import { IMailServiceToken, MailModule } from '../../../mail/mail.module';
+import {
+  emailList,
   exchangeApiRequest,
   exchangeApiResponse,
-  exchangeMap,
   subscriptionEmail,
-  emailList,
 } from '../../../test/mock-data';
-import { SubscriptionMapper } from '../../map';
 import { SubscriptionService } from '../subscription.service';
 
 describe('Subscription Service', () => {
@@ -29,7 +30,7 @@ describe('Subscription Service', () => {
   };
 
   const mockedExchangeApiService = {
-    getCurrencyConversion: jest.fn(),
+    getExchangeRateData: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -38,15 +39,15 @@ describe('Subscription Service', () => {
       providers: [
         SubscriptionService,
         {
-          provide: LocalDbService,
+          provide: ILocalDbServiceToken,
           useValue: mockedDbService,
         },
         {
-          provide: MailService,
+          provide: IMailServiceToken,
           useValue: mockedMailService,
         },
         {
-          provide: ExchangeApiService,
+          provide: IExchangeApiServiceToken,
           useValue: mockedExchangeApiService,
         },
       ],
@@ -94,21 +95,15 @@ describe('Subscription Service', () => {
 
     describe('addNewEmail method with error', () => {
       beforeEach(async () => {
-        jest.spyOn(mockedDbService, 'addOne').mockResolvedValue(null);
+        mockedDbService.addOne.mockImplementation(() => {
+          throw new Error();
+        });
       });
 
-      it('should return null', async () => {
-        await subscriptionService.addNewEmail(email);
-
-        expect(mockedDbService.addOne).toHaveBeenCalled();
-        expect(mockedDbService.addOne).toHaveBeenCalledWith(
-          LocalDbName.Email,
-          email,
-        );
-        expect(
-          await mockedDbService.addOne(LocalDbName.Email, email),
-        ).toBeNull();
-        expect(await subscriptionService.addNewEmail(email)).toBeNull();
+      it('should throw Error', async () => {
+        await expect(
+          subscriptionService.addNewEmail(email),
+        ).rejects.toThrowError();
       });
     });
   });
@@ -118,11 +113,8 @@ describe('Subscription Service', () => {
       beforeEach(async () => {
         jest.spyOn(mockedDbService, 'findAll').mockResolvedValue(emailList);
         jest
-          .spyOn(mockedExchangeApiService, 'getCurrencyConversion')
+          .spyOn(mockedExchangeApiService, 'getExchangeRateData')
           .mockResolvedValue(exchangeApiResponse);
-        jest
-          .spyOn(SubscriptionMapper, 'toSendEmailsDto')
-          .mockReturnValue(exchangeMap);
       });
 
       it('should get all data & send emails', async () => {
@@ -133,79 +125,44 @@ describe('Subscription Service', () => {
         expect(await mockedDbService.findAll(LocalDbName.Email)).toEqual(
           emailList,
         );
+        expect(mockedExchangeApiService.getExchangeRateData).toHaveBeenCalled();
         expect(
-          mockedExchangeApiService.getCurrencyConversion,
-        ).toHaveBeenCalled();
-        expect(
-          mockedExchangeApiService.getCurrencyConversion,
-        ).toHaveBeenCalledWith(exchangeApiRequest.from, exchangeApiRequest.to);
-        expect(
-          await mockedExchangeApiService.getCurrencyConversion(
-            exchangeApiRequest.from,
-            exchangeApiRequest.to,
-          ),
-        ).toEqual(exchangeApiResponse);
+          mockedExchangeApiService.getExchangeRateData,
+        ).toHaveBeenCalledWith(exchangeApiRequest);
+
         expect(mockedMailService.sendExchangeRateEmail).toHaveBeenCalled();
         expect(mockedMailService.sendExchangeRateEmail).toHaveBeenCalledWith(
           emailList[0],
-          exchangeMap,
+          exchangeApiResponse,
         );
         expect(mockedMailService.sendExchangeRateEmail).toHaveBeenCalledWith(
           emailList[2],
-          exchangeMap,
+          exchangeApiResponse,
         );
       });
     });
 
     describe('sendEmails method because of an empty DB', () => {
       beforeEach(async () => {
-        jest.spyOn(mockedDbService, 'findAll').mockResolvedValue(null);
+        mockedDbService.findAll.mockImplementation(() => {
+          throw new Error();
+        });
       });
 
       it('should return null', async () => {
-        await subscriptionService.sendEmails();
-
-        expect(mockedDbService.findAll).toHaveBeenCalled();
-        expect(mockedDbService.findAll).toHaveBeenCalledWith(LocalDbName.Email);
-        expect(await mockedDbService.findAll(LocalDbName.Email)).toBeNull();
-        expect(
-          mockedExchangeApiService.getCurrencyConversion,
-        ).not.toHaveBeenCalled();
-        expect(mockedMailService.sendExchangeRateEmail).not.toHaveBeenCalled();
-        expect(await subscriptionService.sendEmails()).toBeNull();
+        await expect(subscriptionService.sendEmails()).rejects.toThrowError();
       });
     });
 
-    describe('sendEmails method because of API service returned null', () => {
+    describe('sendEmails method because of  error thrown by API service', () => {
       beforeEach(async () => {
-        jest.spyOn(mockedDbService, 'findAll').mockResolvedValue(emailList);
-        jest
-          .spyOn(mockedExchangeApiService, 'getCurrencyConversion')
-          .mockResolvedValue(null);
+        mockedExchangeApiService.getExchangeRateData.mockImplementation(() => {
+          throw new Error();
+        });
       });
 
       it('should return null', async () => {
-        await subscriptionService.sendEmails();
-
-        expect(mockedDbService.findAll).toHaveBeenCalled();
-        expect(mockedDbService.findAll).toHaveBeenCalledWith(LocalDbName.Email);
-        expect(await mockedDbService.findAll(LocalDbName.Email)).toEqual(
-          emailList,
-        );
-        expect(
-          mockedExchangeApiService.getCurrencyConversion,
-        ).toHaveBeenCalled();
-        expect(
-          mockedExchangeApiService.getCurrencyConversion,
-        ).toHaveBeenCalledWith(exchangeApiRequest.from, exchangeApiRequest.to);
-        expect(
-          await mockedExchangeApiService.getCurrencyConversion(
-            exchangeApiRequest.from,
-            exchangeApiRequest.to,
-          ),
-        ).toBeNull();
-        expect(mockedMailService.sendExchangeRateEmail).not.toHaveBeenCalled();
-        expect(await subscriptionService.sendEmails()).toBeNull();
+        await expect(subscriptionService.sendEmails()).rejects.toThrowError();
       });
     });
   });

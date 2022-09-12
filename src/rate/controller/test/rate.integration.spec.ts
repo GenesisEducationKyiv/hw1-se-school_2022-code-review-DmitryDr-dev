@@ -1,17 +1,17 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
-import { ValidationPipe } from '../../common/pipes';
-import { ExchangeApiService } from '../../exchange-api/exchange-api.service';
-import { RateController } from '../../rate/controller';
-import { RateService } from '../../rate/service';
-import { exchangeApiResponse } from '../mock-data';
+import { ValidationPipe } from '../../../common/pipes';
+import { RateController } from '../index';
+import { RateService } from '../../service';
+import { IExchangeApiServiceToken } from '../../../exchange-api/exchange-api.module';
+import { exchangeRatesResponse } from '../../../test/mock-data/exchange-rates-response';
 
 describe('Rate Module', () => {
   let app: INestApplication;
 
   const mockedExchangeApiService = {
-    getCurrencyConversion: jest.fn(),
+    getExchangeRate: jest.fn(),
   };
 
   beforeAll(async () => {
@@ -20,7 +20,7 @@ describe('Rate Module', () => {
       providers: [
         RateService,
         {
-          provide: ExchangeApiService,
+          provide: IExchangeApiServiceToken,
           useValue: mockedExchangeApiService,
         },
       ],
@@ -44,23 +44,23 @@ describe('Rate Module', () => {
     describe('GET gses2.app/api/rate returns value', () => {
       beforeEach(async () => {
         jest
-          .spyOn(mockedExchangeApiService, 'getCurrencyConversion')
-          .mockResolvedValue(exchangeApiResponse);
+          .spyOn(mockedExchangeApiService, 'getExchangeRate')
+          .mockResolvedValue(exchangeRatesResponse.result);
       });
 
       it('should return a value', () => {
         return request(app.getHttpServer())
           .get('/rate')
           .expect(200)
-          .expect(`${exchangeApiResponse.result}`);
+          .expect(`${exchangeRatesResponse.result}`);
       });
     });
 
     describe('GET gses2.app/api/rate throws Error', () => {
       beforeEach(async () => {
-        jest
-          .spyOn(mockedExchangeApiService, 'getCurrencyConversion')
-          .mockResolvedValue(null);
+        mockedExchangeApiService.getExchangeRate.mockImplementation(() => {
+          throw new Error();
+        });
       });
 
       it('should throw BadRequestException', () => {

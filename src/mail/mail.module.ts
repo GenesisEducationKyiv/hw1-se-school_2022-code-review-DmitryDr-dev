@@ -4,8 +4,11 @@ import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as path from 'path';
-import { MailProcessor } from './mail.processor';
-import { MailService } from './mail.service';
+import { MailService } from './service';
+import { MailProcessor } from './processor';
+
+export const IMailServiceToken = Symbol.for('IMailService');
+export const IMailProcessorToken = Symbol.for('IMailProcessor');
 
 @Module({
   imports: [
@@ -39,7 +42,16 @@ import { MailService } from './mail.service';
     }),
     ConfigModule.forRoot(),
   ],
-  providers: [MailService, MailProcessor],
-  exports: [MailService],
+  providers: [
+    {
+      provide: IMailServiceToken,
+      useClass: MailService,
+    },
+    {
+      provide: IMailProcessorToken,
+      useClass: MailProcessor,
+    },
+  ],
+  exports: [IMailServiceToken],
 })
 export class MailModule {}
