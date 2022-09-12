@@ -1,6 +1,8 @@
 import { IBinaryTree } from '../binary-tree';
 
 export interface IDbBinaryTreeService {
+  createTree: <T>() => IBinaryTree<T>;
+
   addValue: <T>(
     tree: IBinaryTree<T>,
     value: T,
