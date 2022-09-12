@@ -1,4 +1,5 @@
 export const exchangeApiRequest = {
-  from: 'BTC',
-  to: 'UAH',
+  sourceCurrency: 'BTC',
+  targetCurrency: 'UAH',
+  amount: 1,
 };

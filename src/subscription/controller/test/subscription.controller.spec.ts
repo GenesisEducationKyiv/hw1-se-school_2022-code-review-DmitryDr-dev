@@ -62,9 +62,9 @@ describe('Subscription Controller', () => {
 
     describe('subscribeEmail method with BadRequestException', () => {
       beforeEach(async () => {
-        jest
-          .spyOn(mockedSubscriptionService, 'addNewEmail')
-          .mockResolvedValue(null);
+        mockedSubscriptionService.addNewEmail.mockImplementation(() => {
+          throw new Error();
+        });
       });
 
       it('should throw BadRequestException', async () => {
