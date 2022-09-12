@@ -1,7 +1,7 @@
 import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
-import { DbStorageProcessor } from './db-storage.processor';
-import { DbStorageService } from './db-storage.service';
+import { DbStorageProcessor } from './processor';
+import { DbStorageService } from './service';
 
 @Module({
   imports: [
