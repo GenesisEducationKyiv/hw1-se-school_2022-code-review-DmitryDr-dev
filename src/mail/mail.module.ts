@@ -4,8 +4,8 @@ import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as path from 'path';
-import { MailProcessor } from './mail.processor';
-import { MailService } from './mail.service';
+import { MailProcessor } from './processor/mail.processor';
+import { MailService } from './service/mail.service';
 
 @Module({
   imports: [

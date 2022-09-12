@@ -1,30 +1,33 @@
 import { InjectQueue } from '@nestjs/bull';
 import { Injectable, Logger } from '@nestjs/common';
 import { Queue } from 'bull';
-import { IExchangeRate } from '../subscription/interfaces';
+import { SentMessageInfo } from 'nodemailer';
+import { IExchangeApiResponse } from '../../exchange-api/common/interfaces';
+import { IMailService } from './mail.service.interface';
 
 @Injectable()
-export class MailService {
+export class MailService implements IMailService {
   private readonly logger = new Logger(MailService.name);
 
   constructor(@InjectQueue('mailQueue') private readonly mailQueue: Queue) {}
 
   public async sendExchangeRateEmail(
     email: string,
-    exchangeRateData: IExchangeRate,
-  ) {
+    exchangeRateData: IExchangeApiResponse,
+  ): Promise<SentMessageInfo> {
     try {
-      const result = await this.mailQueue.add('sendExchangeRateEmail', {
+      const job = await this.mailQueue.add('sendExchangeRateEmail', {
         email,
         exchangeRateData,
       });
 
-      return result;
+      const result: Promise<SentMessageInfo> = await job.finished();
+
+      return await result;
     } catch (error) {
-      this.logger.error(
+      throw new Error(
         `Error occurred while sending email to ${email} because of ${error.message}`,
       );
-      return null;
     }
   }
 }
