@@ -1,7 +1,10 @@
 import { BullModule } from '@nestjs/bull';
 import { Module } from '@nestjs/common';
-import { DbStorageProcessor } from './processor';
 import { DbStorageService } from './service';
+import { DbStorageProcessor } from './processor';
+
+export const IDbStorageServiceToken = Symbol.for('IDbStorageServiceToken');
+export const IDbStorageProcessorToken = Symbol.for('IDbStorageProcessorToken');
 
 @Module({
   imports: [
@@ -9,7 +12,16 @@ import { DbStorageService } from './service';
       name: 'fsOperationsQueue',
     }),
   ],
-  providers: [DbStorageService, DbStorageProcessor],
-  exports: [DbStorageService],
+  providers: [
+    {
+      provide: IDbStorageServiceToken,
+      useClass: DbStorageService,
+    },
+    {
+      provide: IDbStorageProcessorToken,
+      useClass: DbStorageProcessor,
+    },
+  ],
+  exports: [IDbStorageServiceToken],
 })
 export class DbStorageModule {}

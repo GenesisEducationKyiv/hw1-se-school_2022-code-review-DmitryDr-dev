@@ -1,15 +1,19 @@
-import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
+import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { LocalDbName } from '../../../common/constants';
-import { DbBinaryTreeService } from '../../db-binary-tree/service/db-binary-tree.service';
-import { DbStorageService } from '../../db-storage/service/db-storage.service';
 import { IBinaryTree } from '../../db-binary-tree/binary-tree';
 import { ILocalDbService } from './local-db.service.interface';
+import { IDbBinaryTreeServiceToken } from '../../db-binary-tree/db-binary-tree.module';
+import { IDbBinaryTreeService } from '../../db-binary-tree/service';
+import { IDbStorageServiceToken } from '../../db-storage/db-storage.module';
+import { IDbStorageService } from '../../db-storage/service';
 
 @Injectable()
 export class LocalDbService implements OnApplicationBootstrap, ILocalDbService {
   constructor(
-    private readonly dbStorageService: DbStorageService,
-    private readonly dbBinaryTreeService: DbBinaryTreeService,
+    @Inject(IDbStorageServiceToken)
+    private readonly dbStorageService: IDbStorageService,
+    @Inject(IDbBinaryTreeServiceToken)
+    private readonly dbBinaryTreeService: IDbBinaryTreeService,
   ) {}
 
   public async onApplicationBootstrap(): Promise<void> {

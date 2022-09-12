@@ -6,7 +6,8 @@ import { IRateService } from './rate.service.interface';
 @Injectable()
 export class RateService implements IRateService {
   constructor(
-    @Inject(IExchangeApiServiceToken) private exchangeApi: IExchangeApiService,
+    @Inject(IExchangeApiServiceToken)
+    private readonly exchangeApi: IExchangeApiService,
   ) {}
 
   public async getBtcToUah(): Promise<number> {

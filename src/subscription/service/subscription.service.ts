@@ -1,19 +1,22 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { LocalDbName } from '../../common/constants';
-import { LocalDbService } from '../../database/local-db/service/local-db.service';
-import { MailService } from '../../mail/service/mail.service';
 import { IExchangeApiServiceToken } from '../../exchange-api/exchange-api.module';
 import { IExchangeApiService } from '../../exchange-api/common/service';
 import { ISubscriptionService } from './subscription.service.interface';
+import { ILocalDbServiceToken } from '../../database/local-db/local-db.module';
+import { ILocalDbService } from '../../database/local-db/service';
+import { IMailServiceToken } from '../../mail/mail.module';
+import { IMailService } from '../../mail/service';
 
 @Injectable()
 export class SubscriptionService implements ISubscriptionService {
-  private readonly logger = new Logger(SubscriptionService.name);
-
   constructor(
-    @Inject(IExchangeApiServiceToken) private exchangeApi: IExchangeApiService,
-    private localDbService: LocalDbService,
-    private mailService: MailService,
+    @Inject(ILocalDbServiceToken)
+    private readonly localDbService: ILocalDbService,
+    @Inject(IExchangeApiServiceToken)
+    private readonly exchangeApi: IExchangeApiService,
+    @Inject(IMailServiceToken)
+    private readonly mailService: IMailService,
   ) {}
 
   public async addNewEmail(email: string): Promise<string> {
