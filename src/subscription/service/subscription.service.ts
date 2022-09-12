@@ -46,7 +46,7 @@ export class SubscriptionService implements ISubscriptionService {
         (email) =>
           new Promise((res, rej) => {
             this.mailService
-              .sendExchangeRateEmail(email as string, exchangeRate)
+              .sendExchangeRateEmail(email, exchangeRate)
               .then(() => {
                 res(email);
               })
