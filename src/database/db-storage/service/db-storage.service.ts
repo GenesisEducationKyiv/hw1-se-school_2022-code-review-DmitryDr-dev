@@ -25,7 +25,7 @@ export class DbStorageService implements IDbStorageService {
 
       return !!result;
     } catch (error) {
-      throw new Error(`Error occurred while reading file: ${error.message}`);
+      return false;
     }
   }
 
