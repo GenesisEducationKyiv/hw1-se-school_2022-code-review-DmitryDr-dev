@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { LocalDbModule } from 'src/database/local-db/local-db.module';
-import { ExchangeApiModule } from 'src/exchange-api/exchange-api.module';
-import { MailModule } from 'src/mail/mail.module';
-import { SubscriptionController } from './subscription.controller';
-import { SubscriptionService } from './subscription.service';
+import { LocalDbModule } from '../database/local-db/local-db.module';
+import { ExchangeApiModule } from '../exchange-api/exchange-api.module';
+import { MailModule } from '../mail/mail.module';
+import { SubscriptionController } from './controller';
+import { SubscriptionService } from './service';
 
 @Module({
   imports: [LocalDbModule, MailModule, ExchangeApiModule],

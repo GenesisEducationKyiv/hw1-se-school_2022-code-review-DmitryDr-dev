@@ -3,7 +3,7 @@ import { Process, Processor } from '@nestjs/bull';
 import { Injectable, Logger } from '@nestjs/common';
 import { Job } from 'bull';
 import * as path from 'path';
-import { IExchangeRate } from 'src/subscription/interfaces';
+import { IExchangeRate } from '../subscription/interfaces';
 
 @Injectable()
 @Processor('mailQueue')

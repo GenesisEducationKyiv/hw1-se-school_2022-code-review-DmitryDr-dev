@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ExchangeApiService } from 'src/exchange-api/exchange-api.service';
+import { ExchangeApiService } from '../../exchange-api/exchange-api.service';
 
 @Injectable()
 export class RateService {
