@@ -5,21 +5,22 @@ import {
   IExchangeApiRequest,
   IExchangeApiResponse,
 } from '../../common/interfaces';
-import { IExchangeApiService } from '../../common/service';
+import { ExchangeApiService } from '../../common/service';
 import { IExchangeRateHostResponse } from '../interfaces';
 
-export class ExchangeRateHostService implements IExchangeApiService {
-  constructor(private readonly httpService: HttpService) {}
+export class ExchangeRateHostService extends ExchangeApiService {
+  constructor(private readonly httpService: HttpService) {
+    super();
+  }
 
   public async getExchangeRate(request: IExchangeApiRequest): Promise<number> {
     try {
-      const response = await this.getCurrencyConversion(request);
+      const response: IExchangeRateHostResponse =
+        await this.getCurrencyConversion(request);
 
       return response.result;
     } catch (error) {
-      throw new Error(
-        `Error on fetching data from exchangerate.host: ${error.message}`,
-      );
+      return super.getExchangeRate(request);
     }
   }
 
@@ -27,7 +28,8 @@ export class ExchangeRateHostService implements IExchangeApiService {
     request: IExchangeApiRequest,
   ): Promise<IExchangeApiResponse> {
     try {
-      const response = await this.getCurrencyConversion(request);
+      const response: IExchangeRateHostResponse =
+        await this.getCurrencyConversion(request);
 
       return {
         sourceCurrency: response.query.from,
@@ -36,20 +38,18 @@ export class ExchangeRateHostService implements IExchangeApiService {
         targetAmount: response.result,
       };
     } catch (error) {
-      throw new Error(
-        `Error on fetching data from exchangerate.host: ${error.message}`,
-      );
+      return super.getExchangeRateData(request);
     }
   }
 
-  private async getCurrencyConversion(
+  protected async getCurrencyConversion<IExchangeRateHostResponse>(
     request: IExchangeApiRequest,
   ): Promise<IExchangeRateHostResponse> {
     const { sourceCurrency: from, targetCurrency: to, amount } = request;
 
     const data = this.httpService
       .get(
-        `https://api.exchangerate.host/convert?from=${from}&${to}=UAH&amount=${amount}`,
+        `https://api.exchangerate.host/convert?from=${from}&to=${to}&amount=${amount}`,
       )
       .pipe(map((response) => response.data));
     const result = await lastValueFrom(data);

@@ -1,31 +1,33 @@
 import { HttpService } from '@nestjs/axios';
-import { ConfigService } from '@nestjs/config';
 import { Injectable } from '@nestjs/common';
-import { map } from 'rxjs/operators';
+import { ConfigService } from '@nestjs/config';
 import { lastValueFrom } from 'rxjs';
+import { map } from 'rxjs/operators';
 import {
   IExchangeApiRequest,
   IExchangeApiResponse,
 } from '../../common/interfaces';
+import { ExchangeApiService } from '../../common/service';
 import { IExchangeRatesResponse } from '../interfaces';
-import { IExchangeApiService } from '../../common/service';
 
 @Injectable()
-export class ExchangeRatesService implements IExchangeApiService {
+export class ExchangeRatesService extends ExchangeApiService {
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
-  ) {}
+  ) {
+    super();
+  }
 
   public async getExchangeRate(request: IExchangeApiRequest): Promise<number> {
     try {
-      const response = await this.getCurrencyConversion(request);
+      const response: IExchangeRatesResponse = await this.getCurrencyConversion(
+        request,
+      );
 
       return response.result;
     } catch (error) {
-      throw new Error(
-        `Error on fetching data from exchangerates.com: ${error.message}`,
-      );
+      return super.getExchangeRate(request);
     }
   }
 
@@ -33,7 +35,9 @@ export class ExchangeRatesService implements IExchangeApiService {
     request: IExchangeApiRequest,
   ): Promise<IExchangeApiResponse> {
     try {
-      const response = await this.getCurrencyConversion(request);
+      const response: IExchangeRatesResponse = await this.getCurrencyConversion(
+        request,
+      );
 
       return {
         sourceCurrency: response.query.from,
@@ -42,13 +46,11 @@ export class ExchangeRatesService implements IExchangeApiService {
         targetAmount: response.info.rate,
       };
     } catch (error) {
-      throw new Error(
-        `Error on fetching data from exchangerates.com: ${error.message}`,
-      );
+      return super.getExchangeRateData(request);
     }
   }
 
-  private async getCurrencyConversion(
+  protected async getCurrencyConversion<IExchangeRatesResponse>(
     request: IExchangeApiRequest,
   ): Promise<IExchangeRatesResponse> {
     const { sourceCurrency: from, targetCurrency: to, amount } = request;

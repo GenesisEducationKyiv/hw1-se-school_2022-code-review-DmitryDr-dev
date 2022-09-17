@@ -5,22 +5,23 @@ import {
   IExchangeApiRequest,
   IExchangeApiResponse,
 } from '../../common/interfaces';
-import { IExchangeApiService } from '../../common/service';
+import { ExchangeApiService } from '../../common/service';
 import { CurrencyApiResponseType } from '../interfaces';
 
-export class CurrencyApiService implements IExchangeApiService {
-  constructor(private readonly httpService: HttpService) {}
+export class CurrencyApiService extends ExchangeApiService {
+  constructor(private readonly httpService: HttpService) {
+    super();
+  }
 
   public async getExchangeRate(request: IExchangeApiRequest): Promise<number> {
     try {
-      const response = await this.getCurrencyConversion(request);
+      const response: CurrencyApiResponseType =
+        await this.getCurrencyConversion(request);
       const targetCurrency = request.targetCurrency.toLowerCase();
 
       return response[targetCurrency];
     } catch (error) {
-      throw new Error(
-        `Error on fetching data from currency-api: ${error.message}`,
-      );
+      return super.getExchangeRate(request);
     }
   }
 
@@ -29,7 +30,8 @@ export class CurrencyApiService implements IExchangeApiService {
   ): Promise<IExchangeApiResponse> {
     try {
       const { sourceCurrency, targetCurrency, amount } = request;
-      const response = await this.getCurrencyConversion(request);
+      const response: CurrencyApiResponseType =
+        await this.getCurrencyConversion(request);
       const normalizedTargetCurrency = request.targetCurrency.toLowerCase();
       const targetAmount = response[normalizedTargetCurrency] * response.amount;
 
@@ -40,13 +42,11 @@ export class CurrencyApiService implements IExchangeApiService {
         targetAmount,
       };
     } catch (error) {
-      throw new Error(
-        `Error on fetching data from currency-api: ${error.message}`,
-      );
+      return super.getExchangeRateData(request);
     }
   }
 
-  private async getCurrencyConversion(
+  protected async getCurrencyConversion<CurrencyApiResponseType>(
     request: IExchangeApiRequest,
   ): Promise<CurrencyApiResponseType> {
     const { sourceCurrency, targetCurrency } = request;
