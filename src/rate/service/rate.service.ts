@@ -1,18 +1,22 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { IExchangeApiServiceToken } from '../../exchange-api/exchange-api.module';
+import { ICreatorPool } from 'src/exchange-api/creator-pool';
 import { IExchangeApiService } from '../../exchange-api/common/service';
+import { ICreatorPoolToken } from '../../exchange-api/exchange-api.module';
 import { IRateService } from './rate.service.interface';
 
 @Injectable()
 export class RateService implements IRateService {
+  private exchangeApi: IExchangeApiService;
+
   constructor(
-    @Inject(IExchangeApiServiceToken)
-    private readonly exchangeApi: IExchangeApiService,
-  ) {}
+    @Inject(ICreatorPoolToken) private readonly creatorTool: ICreatorPool,
+  ) {
+    this.exchangeApi = this.creatorTool.getExchangeApi();
+  }
 
   public async getBtcToUah(): Promise<number> {
     try {
-      const result: number = await this.exchangeApi.getExchangeRate({
+      const result = await this.exchangeApi.getExchangeRate({
         sourceCurrency: 'BTC',
         targetCurrency: 'UAH',
         amount: 1,
