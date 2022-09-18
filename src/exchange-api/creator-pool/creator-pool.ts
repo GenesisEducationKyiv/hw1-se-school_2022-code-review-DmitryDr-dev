@@ -57,7 +57,7 @@ export class CreatorPool implements ICreatorPool {
 
     for (let i = 0; i < serviceArr.length; i += 1) {
       const currentIdx = (i + offset) % serviceArr.length;
-      const nextIdx = (currentIdx + offset) % serviceArr.length;
+      const nextIdx = (currentIdx + 1) % serviceArr.length;
       const [, currentService] = serviceArr[currentIdx];
       const [, nextService] = serviceArr[nextIdx];
 
