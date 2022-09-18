@@ -7,6 +7,7 @@ import { LocalDbModule } from './database/local-db/local-db.module';
 import { ExchangeApiModule } from './exchange-api/exchange-api.module';
 import { MailModule } from './mail/mail.module';
 import { RateModule } from './rate/rate.module';
+import { RedisModule } from './redis/redis.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 
 @Module({
@@ -31,6 +32,7 @@ import { SubscriptionModule } from './subscription/subscription.module';
     LocalDbModule,
     MailModule,
     SubscriptionModule,
+    RedisModule,
   ],
   controllers: [],
   providers: [],
