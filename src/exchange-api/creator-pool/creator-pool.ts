@@ -1,16 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ApiName } from 'src/common/constants';
 import { IExchangeApiService } from '../common/service';
 import { CurrencyApiCreator } from '../currency-api/creator';
 import { ExchangeRateHostCreator } from '../exchange-rate-host/creator';
 import { ExchangeRatesCreator } from '../exchange-rates/creator';
 import { ICreatorPool } from './creator-pool.interface';
-
-enum ApiName {
-  ExchangeRates = 'ExchangeRates',
-  ExchangeRateHost = 'ExchangeRateHost',
-  CurrencyApi = 'CurrencyApi',
-}
 
 interface ServiceMap {
   [key: string]: IExchangeApiService;
