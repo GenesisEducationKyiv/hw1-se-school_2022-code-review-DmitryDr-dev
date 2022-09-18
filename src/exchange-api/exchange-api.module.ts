@@ -1,6 +1,7 @@
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { RedisModule } from 'src/redis/redis.module';
 import { CreatorPool } from './creator-pool';
 import { CurrencyApiCreator } from './currency-api/creator';
 import { ExchangeRateHostCreator } from './exchange-rate-host/creator';
@@ -11,7 +12,7 @@ export const IExchangeApiServiceToken = Symbol.for('IExchangeApiService');
 export const ICreatorPoolToken = Symbol.for('ICreatorPoolToken');
 
 @Module({
-  imports: [HttpModule, ConfigModule],
+  imports: [HttpModule, ConfigModule, RedisModule],
   providers: [
     {
       provide: ICreatorPoolToken,
