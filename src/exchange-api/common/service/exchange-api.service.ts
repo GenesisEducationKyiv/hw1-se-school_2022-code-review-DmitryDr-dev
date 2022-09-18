@@ -4,7 +4,7 @@ import { IExchangeApiService } from './exchange-api.service.interface';
 export abstract class ExchangeApiService implements IExchangeApiService {
   #nextHandler: IExchangeApiService;
 
-  get nextHandler() {
+  get nextHandler(): IExchangeApiService {
     return this.#nextHandler;
   }
 
