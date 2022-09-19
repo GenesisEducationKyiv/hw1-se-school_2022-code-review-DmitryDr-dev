@@ -1,6 +1,10 @@
 import { HttpService } from '@nestjs/axios';
+import { Inject } from '@nestjs/common';
 import { lastValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { ApiName, Event } from '../../../common/constants';
+import { IEventDispatcher } from '../../../event/event-dispatcher/interface';
+import { EventDispatcherToken } from '../../../event/event.module';
 import {
   IExchangeApiRequest,
   IExchangeApiResponse,
@@ -9,7 +13,11 @@ import { ExchangeApiService } from '../../common/service';
 import { CurrencyApiResponseType } from '../interfaces';
 
 export class CurrencyApiService extends ExchangeApiService {
-  constructor(private readonly httpService: HttpService) {
+  constructor(
+    private readonly httpService: HttpService,
+    @Inject(EventDispatcherToken)
+    private readonly eventDispatcher: IEventDispatcher,
+  ) {
     super();
   }
 
@@ -18,6 +26,14 @@ export class CurrencyApiService extends ExchangeApiService {
       const response: CurrencyApiResponseType =
         await this.getCurrencyConversion(request);
       const targetCurrency = request.targetCurrency.toLowerCase();
+
+      this.eventDispatcher.notify({
+        name: Event.ExchangeApiResponse,
+        data: {
+          source: ApiName.CurrencyApi,
+          data: response,
+        },
+      });
 
       return response[targetCurrency];
     } catch (error) {
@@ -34,6 +50,14 @@ export class CurrencyApiService extends ExchangeApiService {
         await this.getCurrencyConversion(request);
       const normalizedTargetCurrency = request.targetCurrency.toLowerCase();
       const targetAmount = response[normalizedTargetCurrency] * response.amount;
+
+      this.eventDispatcher.notify({
+        name: Event.ExchangeApiResponse,
+        data: {
+          source: ApiName.CurrencyApi,
+          data: response,
+        },
+      });
 
       return {
         sourceCurrency,

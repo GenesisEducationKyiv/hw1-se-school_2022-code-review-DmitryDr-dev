@@ -1,8 +1,11 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { lastValueFrom } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { ApiName, Event } from '../../../common/constants';
+import { IEventDispatcher } from '../../../event/event-dispatcher/interface';
+import { EventDispatcherToken } from '../../../event/event.module';
 import {
   IExchangeApiRequest,
   IExchangeApiResponse,
@@ -15,6 +18,8 @@ export class ExchangeRatesService extends ExchangeApiService {
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
+    @Inject(EventDispatcherToken)
+    private readonly eventDispatcher: IEventDispatcher,
   ) {
     super();
   }
@@ -24,6 +29,14 @@ export class ExchangeRatesService extends ExchangeApiService {
       const response: IExchangeRatesResponse = await this.getCurrencyConversion(
         request,
       );
+
+      this.eventDispatcher.notify({
+        name: Event.ExchangeApiResponse,
+        data: {
+          source: ApiName.ExchangeRates,
+          data: response,
+        },
+      });
 
       return response.result;
     } catch (error) {
@@ -38,6 +51,14 @@ export class ExchangeRatesService extends ExchangeApiService {
       const response: IExchangeRatesResponse = await this.getCurrencyConversion(
         request,
       );
+
+      this.eventDispatcher.notify({
+        name: Event.ExchangeApiResponse,
+        data: {
+          source: ApiName.ExchangeRates,
+          data: response,
+        },
+      });
 
       return {
         sourceCurrency: response.query.from,
