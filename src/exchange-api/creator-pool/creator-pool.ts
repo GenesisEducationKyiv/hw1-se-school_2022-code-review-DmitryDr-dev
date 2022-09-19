@@ -1,6 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ApiName } from 'src/common/constants';
+import { ApiName, Event } from '../../common/constants';
+import { IEventDispatcher } from '../../event/event-dispatcher/interface';
+import { EventDispatcherToken } from '../../event/event.module';
+import { ExchangeApiListenerCreator } from '../common/listener/creator';
 import { IExchangeApiService } from '../common/service';
 import { CurrencyApiCreator } from '../currency-api/creator';
 import { ExchangeRateHostCreator } from '../exchange-rate-host/creator';
@@ -20,6 +23,9 @@ export class CreatorPool implements ICreatorPool {
   public primaryApi: IExchangeApiService;
 
   constructor(
+    @Inject(EventDispatcherToken)
+    private readonly eventDispatcher: IEventDispatcher,
+    private readonly exchangeApiListenerCreator: ExchangeApiListenerCreator,
     private readonly configService: ConfigService,
     private exchangeRatesCreator: ExchangeRatesCreator,
     private exchangeRateHostCreator: ExchangeRateHostCreator,
@@ -35,6 +41,13 @@ export class CreatorPool implements ICreatorPool {
     this.map = {};
     this.createServices();
     this.createChain();
+    this.bindListeners();
+  }
+
+  private bindListeners() {
+    const apiListener = this.exchangeApiListenerCreator.createListener();
+
+    this.eventDispatcher.attach(apiListener, Event.ExchangeApiResponse);
   }
 
   private createServices(): void {
