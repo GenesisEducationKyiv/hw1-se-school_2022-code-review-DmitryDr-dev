@@ -1,26 +1,24 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ExchangeApiModule } from '../../../exchange-api/exchange-api.module';
-import { ExchangeApiService } from '../../../exchange-api/exchange-api.service';
 import {
-  exchangeApiResponse,
   exchangeApiRequest,
+  exchangeRatesResponse,
 } from '../../../test/mock-data';
 import { RateService } from '../rate.service';
+import { IExchangeApiServiceToken } from '../../../exchange-api/exchange-api.module';
 
 describe('RateService', () => {
   let rateService: RateService;
 
   const mockedExchangeApiService = {
-    getCurrencyConversion: jest.fn(),
+    getExchangeRate: jest.fn(),
   };
 
   beforeEach(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
-      imports: [ExchangeApiModule],
       providers: [
         RateService,
         {
-          provide: ExchangeApiService,
+          provide: IExchangeApiServiceToken,
           useValue: mockedExchangeApiService,
         },
       ],
@@ -40,54 +38,35 @@ describe('RateService', () => {
     describe('getBtcToUah normal work', () => {
       beforeEach(async () => {
         jest
-          .spyOn(mockedExchangeApiService, 'getCurrencyConversion')
-          .mockResolvedValue(exchangeApiResponse);
+          .spyOn(mockedExchangeApiService, 'getExchangeRate')
+          .mockResolvedValue(exchangeRatesResponse.result);
       });
 
       it('should return a value', async () => {
         await rateService.getBtcToUah();
 
+        expect(mockedExchangeApiService.getExchangeRate).toHaveBeenCalled();
+        expect(mockedExchangeApiService.getExchangeRate).toHaveBeenCalledWith(
+          exchangeApiRequest,
+        );
         expect(
-          mockedExchangeApiService.getCurrencyConversion,
-        ).toHaveBeenCalled();
-        expect(
-          mockedExchangeApiService.getCurrencyConversion,
-        ).toHaveBeenCalledWith(exchangeApiRequest.from, exchangeApiRequest.to);
-        expect(
-          await mockedExchangeApiService.getCurrencyConversion(
-            exchangeApiRequest.from,
-            exchangeApiRequest.to,
-          ),
-        ).toEqual(exchangeApiResponse);
+          await mockedExchangeApiService.getExchangeRate(exchangeApiRequest),
+        ).toBe(exchangeRatesResponse.result);
         expect(await rateService.getBtcToUah()).toBe(
-          exchangeApiResponse.info.rate,
+          exchangeRatesResponse.result,
         );
       });
     });
 
     describe('getBtcToUah error processing', () => {
       beforeEach(async () => {
-        jest
-          .spyOn(mockedExchangeApiService, 'getCurrencyConversion')
-          .mockResolvedValue(null);
+        mockedExchangeApiService.getExchangeRate.mockImplementation(() => {
+          throw new Error();
+        });
       });
 
-      it('should return null', async () => {
-        await rateService.getBtcToUah();
-
-        expect(
-          mockedExchangeApiService.getCurrencyConversion,
-        ).toHaveBeenCalled();
-        expect(
-          mockedExchangeApiService.getCurrencyConversion,
-        ).toHaveBeenCalledWith(exchangeApiRequest.from, exchangeApiRequest.to);
-        expect(
-          await mockedExchangeApiService.getCurrencyConversion(
-            exchangeApiRequest.from,
-            exchangeApiRequest.to,
-          ),
-        ).toBeNull();
-        expect(await rateService.getBtcToUah()).toBeNull();
+      it('should throw error', async () => {
+        await expect(rateService.getBtcToUah()).rejects.toThrowError();
       });
     });
   });

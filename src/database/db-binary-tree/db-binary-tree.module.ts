@@ -1,8 +1,15 @@
 import { Module } from '@nestjs/common';
-import { DbBinaryTreeService } from './db-binary-tree.service';
+import { DbBinaryTreeService } from './service/db-binary-tree.service';
+
+export const IDbBinaryTreeServiceToken = Symbol.for('IDbBinaryTreeService');
 
 @Module({
-  providers: [DbBinaryTreeService],
-  exports: [DbBinaryTreeService],
+  providers: [
+    {
+      provide: IDbBinaryTreeServiceToken,
+      useClass: DbBinaryTreeService,
+    },
+  ],
+  exports: [IDbBinaryTreeServiceToken],
 })
 export class DbBinaryTreeModule {}

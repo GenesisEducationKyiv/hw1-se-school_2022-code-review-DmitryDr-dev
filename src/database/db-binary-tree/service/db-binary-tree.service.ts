@@ -4,10 +4,11 @@ import {
   BinaryTreeNode,
   IBinaryTree,
   IBinaryTreeNode,
-} from './binary-tree';
+} from '../binary-tree';
+import { IDbBinaryTreeService } from './db-binary-tree.service.interface';
 
 @Injectable()
-export class DbBinaryTreeService {
+export class DbBinaryTreeService implements IDbBinaryTreeService {
   public createTree<T>(): IBinaryTree<T> {
     return new BinaryTree();
   }
@@ -48,7 +49,7 @@ export class DbBinaryTreeService {
     return searchTree(treeNode);
   }
 
-  public async findValue<T>(tree: IBinaryTree<T>, value: T) {
+  public async findValue<T>(tree: IBinaryTree<T>, value: T): Promise<string> {
     function traverse(node: IBinaryTreeNode<T>) {
       if (value === node.value) return value;
       if (value > node.value) return traverse(node.right);
@@ -60,9 +61,9 @@ export class DbBinaryTreeService {
     return traverse(tree.root);
   }
 
-  public async getAllValues<T>(tree: IBinaryTree<T>): Promise<T[] | null> {
+  public async getAllValues<T>(tree: IBinaryTree<T>): Promise<T[]> {
     if (tree.root === null) {
-      return null;
+      return [];
     }
 
     const result: Array<T> = [];

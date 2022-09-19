@@ -1,5 +1,31 @@
 # GSES2 BTC application
 
+## Running the app
+
+- To run the app you need to have Redis installed
+- Set the env variable as `REDIS_HOST=localhost`
+
+```bash
+# start redis
+$ redis-server
+
+# install dependencies & dev dependencies
+$ npm ci
+
+# run app in development mode
+$ npm run start:dev
+```
+
+## Running the app using Docker
+
+- Set the env variable as `REDIS_HOST=redis`
+
+```bash
+$ docker-compose build
+
+$ docker-compose up
+```
+
 ## Вимоги
 
 ### Основні вимоги

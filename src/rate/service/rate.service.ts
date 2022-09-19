@@ -1,23 +1,26 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ExchangeApiService } from '../../exchange-api/exchange-api.service';
+import { Inject, Injectable } from '@nestjs/common';
+import { IExchangeApiServiceToken } from '../../exchange-api/exchange-api.module';
+import { IExchangeApiService } from '../../exchange-api/common/service';
+import { IRateService } from './rate.service.interface';
 
 @Injectable()
-export class RateService {
-  private readonly logger = new Logger(RateService.name);
+export class RateService implements IRateService {
+  constructor(
+    @Inject(IExchangeApiServiceToken)
+    private readonly exchangeApi: IExchangeApiService,
+  ) {}
 
-  constructor(private exchangeApiService: ExchangeApiService) {}
-
-  public async getBtcToUah() {
+  public async getBtcToUah(): Promise<number> {
     try {
-      const data = await this.exchangeApiService.getCurrencyConversion(
-        'BTC',
-        'UAH',
-      );
+      const result: number = await this.exchangeApi.getExchangeRate({
+        sourceCurrency: 'BTC',
+        targetCurrency: 'UAH',
+        amount: 1,
+      });
 
-      return data ? data?.info?.rate : null;
+      return result;
     } catch (error) {
-      this.logger.error('Error occurred while fetching data');
-      return null;
+      throw new Error(`Error on fetching BTC to UAH: ${error.message}`);
     }
   }
 }

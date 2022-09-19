@@ -1,55 +1,52 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { LocalDbName } from '../../common/constants';
-import { LocalDbService } from '../../database/local-db/local-db.service';
-import { ExchangeApiService } from '../../exchange-api/exchange-api.service';
-import { MailService } from '../../mail/mail.service';
-import { IExchangeRate } from '../interfaces';
-import { SubscriptionMapper } from '../map';
+import { IExchangeApiServiceToken } from '../../exchange-api/exchange-api.module';
+import { IExchangeApiService } from '../../exchange-api/common/service';
+import { ISubscriptionService } from './subscription.service.interface';
+import { ILocalDbServiceToken } from '../../database/local-db/local-db.module';
+import { ILocalDbService } from '../../database/local-db/service';
+import { IMailServiceToken } from '../../mail/mail.module';
+import { IMailService } from '../../mail/service';
 
 @Injectable()
-export class SubscriptionService {
-  private readonly logger = new Logger(SubscriptionService.name);
-
+export class SubscriptionService implements ISubscriptionService {
   constructor(
-    private localDbService: LocalDbService,
-    private mailService: MailService,
-    private exchangeApiService: ExchangeApiService,
+    @Inject(ILocalDbServiceToken)
+    private readonly localDbService: ILocalDbService,
+    @Inject(IExchangeApiServiceToken)
+    private readonly exchangeApi: IExchangeApiService,
+    @Inject(IMailServiceToken)
+    private readonly mailService: IMailService,
   ) {}
 
-  public async addNewEmail(email: string) {
+  public async addNewEmail(email: string): Promise<string> {
     try {
       const result = await this.localDbService.addOne(LocalDbName.Email, email);
 
       return result;
     } catch (error) {
-      this.logger.error(
+      throw new Error(
         `Error occurred while creating new contact': ${error.message}`,
       );
-
-      return null;
     }
   }
 
-  public async sendEmails() {
+  public async sendEmails(): Promise<PromiseSettledResult<unknown>[]> {
     try {
-      const emails = await this.localDbService.findAll(LocalDbName.Email);
-
-      if (!emails) return null;
-
-      const exchangeRate = await this.exchangeApiService.getCurrencyConversion(
-        'BTC',
-        'UAH',
+      const emails: Array<string> = await this.localDbService.findAll(
+        LocalDbName.Email,
       );
+      const exchangeRate = await this.exchangeApi.getExchangeRateData({
+        sourceCurrency: 'BTC',
+        targetCurrency: 'UAH',
+        amount: 1,
+      });
 
-      if (!exchangeRate) return null;
-
-      const exchangeMap: IExchangeRate =
-        SubscriptionMapper.toSendEmailsDto(exchangeRate);
       const allPromises = emails.map(
         (email) =>
           new Promise((res, rej) => {
             this.mailService
-              .sendExchangeRateEmail(email as string, exchangeMap)
+              .sendExchangeRateEmail(email, exchangeRate)
               .then(() => {
                 res(email);
               })
@@ -58,15 +55,13 @@ export class SubscriptionService {
               });
           }),
       );
-      const result = await Promise.allSettled(allPromises);
+      const result: PromiseSettledResult<unknown>[] = await Promise.allSettled(
+        allPromises,
+      );
 
       return result;
     } catch (error) {
-      this.logger.error(
-        `Error occurred while sending emails: ${error.message}`,
-      );
-
-      return null;
+      throw new Error(`Error occurred while sending emails': ${error.message}`);
     }
   }
 }

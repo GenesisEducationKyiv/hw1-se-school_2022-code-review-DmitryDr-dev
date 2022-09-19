@@ -1,6 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { exchangeApiResponse } from '../../../test/mock-data';
+import { exchangeRatesResponse } from '../../../test/mock-data';
 import { RateService } from '../../service';
 import { RateController } from '../rate.controller';
 
@@ -34,7 +34,7 @@ describe('RateController', () => {
 
   describe('getExchangeRate method', () => {
     describe('getExchangeRate method normal work', () => {
-      const result = exchangeApiResponse.info.rate;
+      const { result } = exchangeRatesResponse;
 
       beforeEach(async () => {
         jest.spyOn(mockedRateService, 'getBtcToUah').mockResolvedValue(result);
@@ -50,10 +50,10 @@ describe('RateController', () => {
     });
 
     describe('getExchangeRate method with BadRequestException', () => {
-      const result = null;
-
       beforeEach(async () => {
-        jest.spyOn(mockedRateService, 'getBtcToUah').mockResolvedValue(result);
+        mockedRateService.getBtcToUah.mockImplementation(() => {
+          throw new Error();
+        });
       });
 
       it('should throw BadRequestException', async () => {

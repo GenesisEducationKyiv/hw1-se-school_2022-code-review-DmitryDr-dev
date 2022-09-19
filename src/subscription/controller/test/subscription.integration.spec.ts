@@ -1,13 +1,17 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
-import { ValidationPipe } from '../../common/pipes';
-import { LocalDbService } from '../../database/local-db/local-db.service';
-import { ExchangeApiService } from '../../exchange-api/exchange-api.service';
-import { MailService } from '../../mail/mail.service';
-import { SubscriptionController } from '../../subscription/controller';
-import { SubscriptionService } from '../../subscription/service';
-import { subscriptionEmail } from '../mock-data';
+import { ValidationPipe } from '../../../common/pipes';
+import { SubscriptionController } from '../index';
+import { SubscriptionService } from '../../service';
+import {
+  emailList,
+  exchangeApiResponse,
+  subscriptionEmail,
+} from '../../../test/mock-data';
+import { ILocalDbServiceToken } from '../../../database/local-db/local-db.module';
+import { IMailServiceToken } from '../../../mail/mail.module';
+import { IExchangeApiServiceToken } from '../../../exchange-api/exchange-api.module';
 
 describe('Subscription Module', () => {
   let app: INestApplication;
@@ -19,7 +23,9 @@ describe('Subscription Module', () => {
 
   const mockedMailService = {};
 
-  const mockedExchangeService = {};
+  const mockedExchangeService = {
+    getExchangeRateData: jest.fn(),
+  };
 
   beforeAll(async () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
@@ -27,15 +33,15 @@ describe('Subscription Module', () => {
       providers: [
         SubscriptionService,
         {
-          provide: LocalDbService,
+          provide: ILocalDbServiceToken,
           useValue: mockedDbService,
         },
         {
-          provide: MailService,
+          provide: IMailServiceToken,
           useValue: mockedMailService,
         },
         {
-          provide: ExchangeApiService,
+          provide: IExchangeApiServiceToken,
           useValue: mockedExchangeService,
         },
       ],
@@ -51,8 +57,27 @@ describe('Subscription Module', () => {
     await app.close();
   });
 
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+
   afterEach(async () => {
     jest.clearAllMocks();
+  });
+
+  describe('POST gses2.app/api/subscribe', () => {
+    describe('should send emails to saved contacts in DB', () => {
+      beforeEach(async () => {
+        jest.spyOn(mockedDbService, 'findAll').mockResolvedValue(emailList);
+        jest
+          .spyOn(mockedExchangeService, 'getExchangeRateData')
+          .mockResolvedValue(exchangeApiResponse);
+      });
+
+      it('should return status 200', () => {
+        return request(app.getHttpServer()).post('/sendEmails').expect(200);
+      });
+    });
   });
 
   describe('POST gses2.app/api/sendEmails', () => {
@@ -82,7 +107,9 @@ describe('Subscription Module', () => {
 
     describe('should throw BadException Error because of duplicate in DB', () => {
       beforeEach(async () => {
-        jest.spyOn(mockedDbService, 'addOne').mockResolvedValue(null);
+        mockedDbService.addOne.mockImplementation(() => {
+          throw new Error();
+        });
       });
 
       it('should return status 400', () => {
@@ -90,14 +117,6 @@ describe('Subscription Module', () => {
           .post('/subscribe')
           .send(`email=${validEmail}`)
           .expect(400);
-      });
-    });
-  });
-
-  describe('POST gses2.app/api/subscribe', () => {
-    describe('should send emails to saved contacts in DB', () => {
-      it('should return status 200', () => {
-        return request(app.getHttpServer()).post('/sendEmails').expect(200);
       });
     });
   });
