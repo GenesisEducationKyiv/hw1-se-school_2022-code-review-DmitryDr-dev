@@ -1,3 +1,3 @@
 export interface IRateService {
-  getBtcToUah: () => Promise<number>;
+  getBtcToUah(): Promise<number>;
 }
