@@ -1,5 +1,6 @@
 import { HttpService } from '@nestjs/axios';
 import { Inject, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { RedisClientType } from 'redis';
 import { IEventDispatcher } from '../../../event/event-dispatcher/interface';
 import { EventDispatcherToken } from '../../../event/event.module';
@@ -16,6 +17,7 @@ export class CurrencyApiCreator extends ExchangeApiCreator {
     @Inject(EventDispatcherToken)
     private readonly eventDispatcher: IEventDispatcher,
     private readonly httpService: HttpService,
+    private readonly configService: ConfigService,
   ) {
     super();
   }
@@ -25,6 +27,10 @@ export class CurrencyApiCreator extends ExchangeApiCreator {
       this.httpService,
       this.eventDispatcher,
     );
-    return new CachedExchangeApiService(exchangeApi, this.redisClient);
+    return new CachedExchangeApiService(
+      exchangeApi,
+      this.redisClient,
+      this.configService,
+    );
   }
 }

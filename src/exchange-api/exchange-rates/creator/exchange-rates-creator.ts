@@ -28,6 +28,10 @@ export class ExchangeRatesCreator extends ExchangeApiCreator {
       this.configService,
       this.eventDispatcher,
     );
-    return new CachedExchangeApiService(exchangeApi, this.redisClient);
+    return new CachedExchangeApiService(
+      exchangeApi,
+      this.redisClient,
+      this.configService,
+    );
   }
 }
