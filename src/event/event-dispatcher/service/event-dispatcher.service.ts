@@ -3,17 +3,13 @@ import { IEvent } from '../../common/interface';
 import { IEventListener } from '../../event-listener/interface';
 import { IEventDispatcher } from '../interface';
 
-interface ListenerMap {
+interface Listeners {
   [event: string]: Array<IEventListener>;
 }
 
 @Injectable()
 export class EventDispatcherService implements IEventDispatcher {
-  private listeners: ListenerMap;
-
-  constructor() {
-    this.listeners = {};
-  }
+  private listeners: Listeners = {};
 
   public attach(listener: IEventListener, eventName: string): void {
     const { type: listenerType } = listener;
