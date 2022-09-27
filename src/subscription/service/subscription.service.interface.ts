@@ -1,5 +1,5 @@
 export interface ISubscriptionService {
-  addNewEmail: (email: string) => Promise<string>;
+  addNewEmail: (email: string) => Promise<void>;
 
   sendEmails: () => Promise<PromiseSettledResult<unknown>[]>;
 }

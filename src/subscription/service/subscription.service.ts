@@ -20,11 +20,9 @@ export class SubscriptionService implements ISubscriptionService {
     this.exchangeApi = this.creatorTool.getExchangeApi();
   }
 
-  public async addNewEmail(email: string): Promise<string> {
+  public async addNewEmail(email: string): Promise<void> {
     try {
-      const result = await this.subscriptionRepository.addOne(email);
-
-      return result;
+      await this.subscriptionRepository.addOne(email);
     } catch (error) {
       throw new Error(
         `Error occurred while creating new contact: ${error.message}`,
@@ -36,7 +34,7 @@ export class SubscriptionService implements ISubscriptionService {
     try {
       const emails = await this.subscriptionRepository.findAll();
 
-      if (emails.length === 0) throw new Error('Email list is empty');
+      if (emails.length === 0) return [];
 
       const exchangeRate = await this.exchangeApi.getExchangeRateData({
         sourceCurrency: 'BTC',
