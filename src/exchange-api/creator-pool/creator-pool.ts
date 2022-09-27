@@ -19,7 +19,7 @@ export class CreatorPool implements ICreatorPool {
 
   private map: ServiceMap;
 
-  public primaryApi: IExchangeApiService;
+  private primaryApi: IExchangeApiService;
 
   constructor(
     @Inject(EventDispatcherToken)
