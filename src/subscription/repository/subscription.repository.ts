@@ -11,11 +11,9 @@ export class SubscriptionRepository implements ISubscriptionRepository {
     private readonly localDbService: ILocalDbService,
   ) {}
 
-  public async addOne(email: string): Promise<string> {
+  public async addOne(email: string): Promise<void> {
     try {
-      const result = await this.localDbService.addOne(LocalDbName.Email, email);
-
-      return result;
+      await this.localDbService.addOne(LocalDbName.Email, email);
     } catch (error) {
       throw new Error(
         `Error occurred while adding contact to DB: ${error.message}`,

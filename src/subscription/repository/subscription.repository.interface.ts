@@ -1,5 +1,5 @@
 export interface ISubscriptionRepository {
-  addOne(email: string): Promise<string>;
+  addOne(email: string): Promise<void>;
 
   findAll(): Promise<Array<string>>;
 }
