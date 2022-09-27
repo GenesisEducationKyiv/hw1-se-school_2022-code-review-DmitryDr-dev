@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Scope } from '@nestjs/common';
 import { RedisClientType } from 'redis';
 import { IEventDispatcher } from '../../../event/event-dispatcher/interface';
 import { EventDispatcherToken } from '../../../event/event.module';
@@ -9,7 +9,7 @@ import { ExchangeApiCreator } from '../../common/creator/exchange-api-creator';
 import { IExchangeApiService } from '../../common/service';
 import { CurrencyApiService } from '../service';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class CurrencyApiCreator extends ExchangeApiCreator {
   constructor(
     @Inject(RedisClientToken) private readonly redisClient: RedisClientType,
@@ -25,6 +25,7 @@ export class CurrencyApiCreator extends ExchangeApiCreator {
       this.httpService,
       this.eventDispatcher,
     );
+
     return new CachedExchangeApiService(exchangeApi, this.redisClient);
   }
 }

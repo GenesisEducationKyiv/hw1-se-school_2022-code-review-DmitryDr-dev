@@ -1,13 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ApiName, Event } from '../../common/constants';
+import { ModuleRef } from '@nestjs/core';
+import { Event } from '../../common/constants';
 import { IEventDispatcher } from '../../event/event-dispatcher/interface';
 import { EventDispatcherToken } from '../../event/event.module';
 import { ExchangeApiListenerCreator } from '../common/listener/creator';
 import { IExchangeApiService } from '../common/service';
-import { CurrencyApiCreator } from '../currency-api/creator';
-import { ExchangeRateHostCreator } from '../exchange-rate-host/creator';
-import { ExchangeRatesCreator } from '../exchange-rates/creator';
+import { apiCreator } from '../exchange-api.module';
 import { ICreatorPool } from './creator-pool.interface';
 
 interface ServiceMap {
@@ -27,19 +26,18 @@ export class CreatorPool implements ICreatorPool {
     private readonly eventDispatcher: IEventDispatcher,
     private readonly exchangeApiListenerCreator: ExchangeApiListenerCreator,
     private readonly configService: ConfigService,
-    private exchangeRatesCreator: ExchangeRatesCreator,
-    private exchangeRateHostCreator: ExchangeRateHostCreator,
-    private currencyApiCreator: CurrencyApiCreator,
+    private readonly moduleRef: ModuleRef,
   ) {
     this.onInit();
   }
 
-  private onInit(): void {
+  private async onInit(): Promise<void> {
     this.configValue = this.configService.get<string>(
       'CRYPTO_CURRENCY_PROVIDER',
     );
     this.map = {};
-    this.createServices();
+
+    await this.createServices();
     this.createChain();
     this.bindListeners();
   }
@@ -50,12 +48,17 @@ export class CreatorPool implements ICreatorPool {
     this.eventDispatcher.attach(apiListener, Event.ExchangeApiResponse);
   }
 
-  private createServices(): void {
-    this.map[ApiName.CurrencyApi] = this.currencyApiCreator.createExchangeApi();
-    this.map[ApiName.ExchangeRateHost] =
-      this.exchangeRateHostCreator.createExchangeApi();
-    this.map[ApiName.ExchangeRates] =
-      this.exchangeRatesCreator.createExchangeApi();
+  private async createServices(): Promise<void> {
+    const keys = Object.keys(apiCreator);
+
+    for (let i = 0; i < keys.length; i += 1) {
+      /* eslint-disable no-await-in-loop */
+      const el = keys[i];
+      const creator = await this.moduleRef.resolve(apiCreator.ExchangeRateHost);
+
+      this.map[el] = creator.createExchangeApi();
+      /* eslint-enable no-await-in-loop */
+    }
   }
 
   private createChain(): void {
