@@ -9,22 +9,17 @@ import {
 import { HttpExceptionFilter } from '../../common/filters';
 import { SubscribeEmailDto } from '../dto';
 import { SubscriptionService } from '../service';
-import { ISubscriptionController } from './subscription.controller.interface';
 
 @Controller()
-export class SubscriptionController implements ISubscriptionController {
+export class SubscriptionController {
   constructor(private subscriptionService: SubscriptionService) {}
 
   @Post('subscribe')
   @HttpCode(200)
   @UseFilters(new HttpExceptionFilter())
-  public async subscribeEmail(
-    @Body() body: SubscribeEmailDto,
-  ): Promise<string> {
+  public async subscribeEmail(@Body() body: SubscribeEmailDto): Promise<void> {
     try {
-      const result = await this.subscriptionService.addNewEmail(body.email);
-
-      return result;
+      await this.subscriptionService.addNewEmail(body.email);
     } catch (error) {
       throw new BadRequestException();
     }
