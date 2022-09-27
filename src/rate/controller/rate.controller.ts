@@ -6,15 +6,14 @@ import {
 } from '@nestjs/common';
 import { HttpExceptionFilter } from '../../common/filters';
 import { RateService } from '../service';
-import { IRateController } from './rate.controller.interface';
 
 @Controller()
-export class RateController implements IRateController {
+export class RateController {
   constructor(private rateService: RateService) {}
 
   @Get('rate')
   @UseFilters(new HttpExceptionFilter())
-  public async getExchangeRate() {
+  public async getExchangeRate(): Promise<number> {
     try {
       const result = await this.rateService.getBtcToUah();
 

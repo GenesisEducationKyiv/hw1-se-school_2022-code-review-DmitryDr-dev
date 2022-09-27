@@ -3,11 +3,11 @@ import { IExchangeApiRequest, IExchangeApiResponse } from '../interfaces';
 export interface IExchangeApiService {
   nextHandler: IExchangeApiService;
 
-  setNext: (handler: IExchangeApiService) => IExchangeApiService;
+  setNext(handler: IExchangeApiService): IExchangeApiService;
 
-  getExchangeRate: (request: IExchangeApiRequest) => Promise<number>;
+  getExchangeRate(request: IExchangeApiRequest): Promise<number>;
 
-  getExchangeRateData: (
+  getExchangeRateData(
     request: IExchangeApiRequest,
-  ) => Promise<IExchangeApiResponse>;
+  ): Promise<IExchangeApiResponse>;
 }

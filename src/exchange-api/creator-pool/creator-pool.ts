@@ -42,7 +42,7 @@ export class CreatorPool implements ICreatorPool {
     this.bindListeners();
   }
 
-  private bindListeners() {
+  private bindListeners(): void {
     const apiListener = this.exchangeApiListenerCreator.createListener();
 
     this.eventDispatcher.attach(apiListener, Event.ExchangeApiResponse);
