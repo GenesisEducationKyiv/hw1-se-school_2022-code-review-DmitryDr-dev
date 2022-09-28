@@ -26,12 +26,6 @@ $ docker-compose build
 $ docker-compose up
 ```
 
-## Project Architecture
-
-- [Link](./doc/images/btc-appp.gses2022.drawio.svg)
-
-![draw](./doc/images/btc-appp.gses2022.drawio.svg)
-
 ## Вимоги
 
 ### Основні вимоги

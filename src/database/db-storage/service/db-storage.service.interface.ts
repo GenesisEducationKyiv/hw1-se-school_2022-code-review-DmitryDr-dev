@@ -1,7 +1,7 @@
 export interface IDbStorageService {
-  doesDbFileExist(fileName: string): Promise<boolean>;
+  doesDbFileExist: (fileName: string) => Promise<boolean>;
 
-  writeDbFile<T>(fileName: string, content: T): Promise<T>;
+  writeDbFile: <T>(fileName: string, content: T) => Promise<T>;
 
-  readFile<T>(fileName: string): Promise<T>;
+  readFile: <T>(fileName: string) => Promise<T>;
 }

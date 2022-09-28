@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { ICreatorPool } from 'src/exchange-api/creator-pool';
 import { IExchangeApiService } from '../../exchange-api/common/service';
-import { ICreatorPool } from '../../exchange-api/creator-pool';
 import { ICreatorPoolToken } from '../../exchange-api/exchange-api.module';
 import { IRateService } from './rate.service.interface';
 

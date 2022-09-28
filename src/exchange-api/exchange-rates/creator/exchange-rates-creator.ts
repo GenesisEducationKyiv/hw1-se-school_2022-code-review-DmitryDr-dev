@@ -27,10 +27,6 @@ export class ExchangeRatesCreator implements IExchangeApiCreator {
       this.eventDispatcher,
     );
 
-    return new CachedExchangeApiService(
-      exchangeApi,
-      this.redisClient,
-      this.configService,
-    );
+    return new CachedExchangeApiService(exchangeApi, this.redisClient);
   }
 }

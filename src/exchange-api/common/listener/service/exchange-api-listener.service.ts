@@ -11,7 +11,7 @@ export class ExchangeApiListenerService implements IEventListener {
     this.type = type;
   }
 
-  public update<T>(event: IEvent<T>): void {
+  public update<T>(event: IEvent<T>) {
     this.logger.log(event);
   }
 }

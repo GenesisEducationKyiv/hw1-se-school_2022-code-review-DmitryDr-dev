@@ -1,23 +1,17 @@
-import { ConfigService } from '@nestjs/config';
 import { RedisClientType } from 'redis';
 import { IExchangeApiRequest, IExchangeApiResponse } from '../interfaces';
 import { IExchangeApiService } from '../service';
+
+const EXPIRATION_IN_SEC = 300;
 
 export class CachedExchangeApiService implements IExchangeApiService {
   private exchangeApi: IExchangeApiService;
 
   private redisClient: RedisClientType;
 
-  private configService: ConfigService;
-
-  constructor(
-    exchangeApi: IExchangeApiService,
-    redisClient: RedisClientType,
-    configService: ConfigService,
-  ) {
+  constructor(exchangeApi: IExchangeApiService, redisClient: RedisClientType) {
     this.exchangeApi = exchangeApi;
     this.redisClient = redisClient;
-    this.configService = configService;
   }
 
   get nextHandler(): IExchangeApiService {
@@ -69,7 +63,7 @@ export class CachedExchangeApiService implements IExchangeApiService {
 
   private async setCacheData(key: string, value: string): Promise<void> {
     await this.redisClient.set(key, value, {
-      EX: this.configService.get<number>('REDIS_CACHE_EXPIRATION_IN_SEC'),
+      EX: EXPIRATION_IN_SEC,
     });
   }
 }
