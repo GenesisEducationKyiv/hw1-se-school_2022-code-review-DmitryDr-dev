@@ -1,9 +1,35 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "src",
+  "sourceRoot": "apps/gses2-app/src",
   "compilerOptions": {
-    "assets": ["mail/templates/**/*"],
-    "watchAssets": true
+    "assets": [
+      "mail/templates/**/*"
+    ],
+    "watchAssets": true,
+    "webpack": true,
+    "tsConfigPath": "apps/gses2-app/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/gses2-app",
+  "projects": {
+    "gses2-app": {
+      "type": "application",
+      "root": "apps/gses2-app",
+      "entryFile": "main",
+      "sourceRoot": "apps/gses2-app/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/gses2-app/tsconfig.app.json"
+      }
+    },
+    "app-logger": {
+      "type": "application",
+      "root": "apps/app-logger",
+      "entryFile": "main",
+      "sourceRoot": "apps/app-logger/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/app-logger/tsconfig.app.json"
+      }
+    }
   }
 }
