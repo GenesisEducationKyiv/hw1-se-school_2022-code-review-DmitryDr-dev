@@ -1,10 +1,22 @@
 services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    volumes:
+      - /var/lib/rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    env_file:
+      - ./.env
+
   api:
     container_name: gses2022
     build:
-     dockerfile: Dockerfile
-     context: .
-     target: development
+      dockerfile: Dockerfile
+      context: .
+      target: development
     volumes:
       - .:/usr/src/app
     env_file:
@@ -14,13 +26,15 @@ services:
       - 3000:3000
     depends_on:
       - redis
+
   redis:
     container_name: redis
     image: redis
-    ports: 
+    ports:
       - 6379:6379
     volumes:
       - redis:/data
+
 volumes:
   redis:
     driver: local
