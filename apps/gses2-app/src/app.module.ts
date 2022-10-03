@@ -6,6 +6,7 @@ import { DbStorageModule } from './database/db-storage/db-storage.module';
 import { LocalDbModule } from './database/local-db/local-db.module';
 import { EventModule } from './event/event.module';
 import { ExchangeApiModule } from './exchange-api/exchange-api.module';
+import { LoggerModule } from './logger/logger.module';
 import { MailModule } from './mail/mail.module';
 import { RateModule } from './rate/rate.module';
 import { RedisModule } from './redis/redis.module';
@@ -35,6 +36,7 @@ import { SubscriptionModule } from './subscription/subscription.module';
     MailModule,
     SubscriptionModule,
     RedisModule,
+    LoggerModule,
   ],
   controllers: [],
   providers: [],
