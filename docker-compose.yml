@@ -1,26 +1,56 @@
 services:
-  api:
+  gses2022:
     container_name: gses2022
     build:
-     dockerfile: Dockerfile
-     context: .
-     target: development
+      context: .
+      dockerfile: ./apps/gses2-app/Dockerfile
+      target: development
+    command: npm run start:dev gses2-app
+    env_file:
+      - ./.env
     volumes:
       - .:/usr/src/app
-    env_file:
-      - .env
-    command: npm run start:dev
     ports:
       - 3000:3000
     depends_on:
       - redis
+      - rabbitmq
+      - app-logger
+  
+  app-logger:
+    container_name: app-logger
+    build:
+      context: .
+      dockerfile: ./apps/app-logger/Dockerfile
+      target: development
+    command: npm run start:dev app-logger
+    env_file:
+      - ./.env
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - rabbitmq
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    volumes:
+      - /var/lib/rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    env_file:
+      - ./.env
+
   redis:
     container_name: redis
     image: redis
-    ports: 
+    ports:
       - 6379:6379
     volumes:
       - redis:/data
+
 volumes:
   redis:
     driver: local
