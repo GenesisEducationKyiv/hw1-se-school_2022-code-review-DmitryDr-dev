@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ModuleRef } from '@nestjs/core';
 import { Event } from '../../common/constants';
@@ -14,7 +14,7 @@ interface ServiceMap {
 }
 
 @Injectable()
-export class CreatorPool implements ICreatorPool {
+export class CreatorPool implements OnModuleInit, ICreatorPool {
   private configValue: string;
 
   private map: ServiceMap;
@@ -27,8 +27,10 @@ export class CreatorPool implements ICreatorPool {
     private readonly exchangeApiListenerCreator: ExchangeApiListenerCreator,
     private readonly configService: ConfigService,
     private readonly moduleRef: ModuleRef,
-  ) {
-    this.onInit();
+  ) {}
+
+  async onModuleInit(): Promise<void> {
+    await this.onInit();
   }
 
   private async onInit(): Promise<void> {
