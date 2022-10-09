@@ -1,6 +1,12 @@
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import {
+  ClientProxy,
+  MicroserviceOptions,
+  Transport,
+} from '@nestjs/microservices';
+import { DI_TOKEN } from './common/constants';
+import { ExceptionFilter } from './common/filters';
 import { CustomerAppModule } from './customer-app.module';
 
 async function bootstrap(): Promise<void> {
@@ -26,9 +32,16 @@ async function bootstrap(): Promise<void> {
       },
     },
   );
+  const logger = app.get<ClientProxy>(DI_TOKEN.LoggerRbqToken);
 
+  app.useGlobalFilters(new ExceptionFilter(logger));
   app.listen().then(() => {
-    console.info('Microservice is running');
+    logger.emit('debug', {
+      name: bootstrap.name,
+      timeStamp: new Date().toISOString(),
+      message: `Customer App is running`,
+      type: 'debug',
+    });
   });
   appContext.close();
 }
