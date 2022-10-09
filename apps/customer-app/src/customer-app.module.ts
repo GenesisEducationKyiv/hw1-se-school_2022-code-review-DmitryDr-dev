@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from './logger/logger.module';
+import { CustomerModule } from './customer/customer.module';
 
 @Module({
   imports: [
@@ -8,6 +9,7 @@ import { LoggerModule } from './logger/logger.module';
       envFilePath: '.env',
     }),
     LoggerModule,
+    CustomerModule,
   ],
   controllers: [],
   providers: [],
