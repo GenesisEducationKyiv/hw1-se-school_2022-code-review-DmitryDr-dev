@@ -8,6 +8,7 @@ import { EventModule } from './event/event.module';
 import { ExchangeApiModule } from './exchange-api/exchange-api.module';
 import { LoggerModule } from './logger/logger.module';
 import { MailModule } from './mail/mail.module';
+import { OrchestratorModule } from './orchestrator/orchestrator.module';
 import { RateModule } from './rate/rate.module';
 import { RedisModule } from './redis/redis.module';
 import { SubscriptionModule } from './subscription/subscription.module';
@@ -37,6 +38,7 @@ import { SubscriptionModule } from './subscription/subscription.module';
     SubscriptionModule,
     RedisModule,
     LoggerModule,
+    OrchestratorModule,
   ],
   controllers: [],
   providers: [],
