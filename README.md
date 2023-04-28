@@ -4,6 +4,7 @@
 
 - To run the app you need to have Redis installed
 - Set the env variable as `REDIS_HOST=localhost`
+- To run the app you need to have RabbitMQ started
 
 ```bash
 # start redis
@@ -12,18 +13,28 @@ $ redis-server
 # install dependencies & dev dependencies
 $ npm ci
 
-# run app in development mode
+# run gses2 app in development mode
 $ npm run start:dev
+
+# run app-logger app in development mode
+$ npm run start:dev app-logger
 ```
 
 ## Running the app using Docker
 
 - Set the env variable as `REDIS_HOST=redis`
+- To run the app you need to have RabbitMQ started
 
 ```bash
 $ docker-compose build
 
 $ docker-compose up
+
+# run gses2 app in development mode
+$ npm run start:dev
+
+# run app-logger app in development mode
+$ npm run start:dev app-logger
 ```
 
 ## Project Architecture
